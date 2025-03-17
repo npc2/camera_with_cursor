@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>cam_qt</class>
+ <widget class="QMainWindow" name="cam_qt">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>摄像头测试</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: white;</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="btnDetectCameras">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: #F0F0F0;
+border: 1px solid #C0C0C0;
+padding: 5px;
+font-weight: bold;
+color: #000000;</string>
+        </property>
+        <property name="text">
+         <string>查找摄像头</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnOpenCamera">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: #F0F0F0;
+border: 1px solid #C0C0C0;
+padding: 5px;
+font-weight: bold;
+color: #000000;</string>
+        </property>
+        <property name="text">
+         <string>打开摄像头</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="labelPreview">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>640</width>
+            <height>480</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: #F0F0F0;
+border: 1px solid #C0C0C0;</string>
+          </property>
+          <property name="text">
+           <string>No Frame</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelFPS">
+          <property name="styleSheet">
+           <string notr="true">color: #000000;
+font-weight: bold;</string>
+          </property>
+          <property name="text">
+           <string>实时帧率: 0 FPS</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="styleSheet">
+           <string notr="true">QGroupBox {
+    border: 1px solid #C0C0C0;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #000000;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+}</string>
+          </property>
+          <property name="title">
+           <string>摄像头设置</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="styleSheet">
+              <string notr="true">color: #000000;
+font-weight: bold;</string>
+             </property>
+             <property name="text">
+              <string>摄像头列表:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboCamera">
+             <property name="styleSheet">
+              <string notr="true">border: 1px solid #C0C0C0;
+padding: 3px;
+color: #000000;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelFormat">
+             <property name="text">
+              <string>视频格式:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboFormat">
+             <property name="styleSheet">
+              <string notr="true">border: 1px solid #C0C0C0;
+padding: 3px;
+color: #000000;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelResolution">
+             <property name="text">
+              <string>分辨率:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboResolution">
+             <property name="styleSheet">
+              <string notr="true">border: 1px solid #C0C0C0;
+padding: 3px;
+color: #000000;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="styleSheet">
+              <string notr="true">color: #000000;
+font-weight: bold;</string>
+             </property>
+             <property name="text">
+              <string>帧率:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinFrameRate">
+             <property name="styleSheet">
+              <string notr="true">border: 1px solid #C0C0C0;
+padding: 3px;
+color: #000000;</string>
+             </property>
+             <property name="suffix">
+              <string> FPS</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>200</number>
+             </property>
+             <property name="value">
+              <number>30</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnSetFormat">
+             <property name="styleSheet">
+              <string notr="true">background-color: #F0F0F0;
+border: 1px solid #C0C0C0;
+padding: 5px;
+font-weight: bold;
+color: #000000;</string>
+             </property>
+             <property name="text">
+              <string>设置格式</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnCameraControl">
+             <property name="styleSheet">
+              <string notr="true">background-color: #F0F0F0;
+border: 1px solid #C0C0C0;
+padding: 5px;
+font-weight: bold;
+color: #000000;</string>
+             </property>
+             <property name="text">
+              <string>图像控制</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
