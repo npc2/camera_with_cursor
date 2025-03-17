@@ -1,0 +1,24 @@
+{
+    "qtConfigure.qtKitDir": "d:/Software/QT/6.7.2/mingw_64",
+    "C_Cpp.default.compilerPath": "D:/Software/QT/Tools/mingw1120_64/bin/g++.exe",
+    "cmake.configureOnOpen": true,
+    "cmake.generator": "MinGW Makefiles",
+    "cmake.mingwSearchDirs": [
+        "D:/Software/QT/Tools/mingw1120_64"
+    ],
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/build",
+        "D:/Software/QT/6.7.2/mingw_64/include",
+        "D:/Software/QT/6.7.2/mingw_64/include/QtCore",
+        "D:/Software/QT/6.7.2/mingw_64/include/QtGui",
+        "D:/Software/QT/6.7.2/mingw_64/include/QtWidgets",
+        "D:/Software/QT/6.7.2/mingw_64/include/QtMultimedia"
+    ],
+    "cmake.configureSettings": {
+        "CMAKE_PREFIX_PATH": "d:/Software/QT/6.7.2/mingw_64"
+    },
+    "files.associations": {
+        "new": "cpp"
+    }
+}

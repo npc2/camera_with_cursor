@@ -1,0 +1,60 @@
+name: Build Qt Project
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        qt_version: ['6.7.2']
+        qt_arch: [win64_mingw]
+        include:
+          - qt_version: '6.7.2'
+            qt_arch: win64_mingw
+            qt_tools: 'tools_mingw,qt.tools.cmake'
+            mingw_path: 'C:\Qt\Tools\mingw1120_64\bin'
+            
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ matrix.qt_version }}
+          arch: ${{ matrix.qt_arch }}
+          tools: ${{ matrix.qt_tools }}
+          cache: true
+          
+      - name: Setup environment
+        shell: bash
+        run: |
+          echo "Adding Qt and MinGW to PATH"
+          echo "${{ env.Qt6_DIR }}/bin" >> $GITHUB_PATH
+          echo "${{ matrix.mingw_path }}" >> $GITHUB_PATH
+          
+      - name: Configure CMake
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "MinGW Makefiles"
+          
+      - name: Build
+        shell: bash
+        run: |
+          cd build
+          mingw32-make
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: qt-camera-control-${{ matrix.os }}
+          path: build/test_qt.exe 

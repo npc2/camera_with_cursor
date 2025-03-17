@@ -1,0 +1,79 @@
+# Qt项目特定文件
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+*build-*
+*.qm
+.qmake.stash
+
+# Qt Creator
+CMakeLists.txt.user*
+
+# 编译输出
+build/
+debug/
+release/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.lib
+*.a
+*.la
+*.lo
+
+# 调试文件
+*.pdb
+*.ilk
+*.exp
+
+# 日志文件
+*.log
+debug_log.txt
+
+# Visual Studio生成的文件
+*.ib_pdb_index
+*.idb
+*.ilk
+*.pdb
+*.sln
+*.suo
+*.vcproj
+*vcproj.*.*.user
+*.ncb
+*.sdf
+*.opensdf
+*.vcxproj
+*vcxproj.*
+
+# MinGW生成的文件
+*.Debug
+*.Release
+
+# Python字节码
+*.py[cod]
+*$py.class
+__pycache__/
+
+# 操作系统特定文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 临时文件
+*~
+*.autosave
+*.swp
+*.bak 

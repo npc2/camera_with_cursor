@@ -1,0 +1,87 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: gcc.exe 生成活动文件",
+            "command": "D:\\Software\\QT\\Tools\\mingw1120_64\\bin\\g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-I${workspaceFolder}/build",
+                "-I${workspaceFolder}/src",
+                "-ID:/Software/QT/6.7.2/mingw_64/include",
+                "-ID:/Software/QT/6.7.2/mingw_64/include/QtCore",
+                "-ID:/Software/QT/6.7.2/mingw_64/include/QtGui",
+                "-ID:/Software/QT/6.7.2/mingw_64/include/QtWidgets",
+                "-ID:/Software/QT/6.7.2/mingw_64/include/QtMultimedia",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-L",
+                "D:/Software/QT/6.7.2/mingw_64/lib",
+                "-lQt6Core",
+                "-lQt6Gui",
+                "-lQt6Widgets",
+                "-lQt6Multimedia"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "为Qt项目配置的任务。"
+        },
+        {
+            "label": "编译并运行整个Qt项目",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "${workspaceFolder}\\compile_qt_file.bat",
+                "src\\main.cpp"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "使用批处理文件编译整个Qt项目"
+        },
+        {
+            "label": "使用批处理编译Qt文件(推荐)",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "${workspaceFolder}\\compile_qt_file.bat",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "使用批处理文件编译Qt源文件"
+        },
+        {
+            "label": "运行Qt项目(推荐)",
+            "type": "shell",
+            "command": "${command:cmake.build} && ${command:cmake.launchTarget}",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ],
+    "version": "2.0.0"
+}
