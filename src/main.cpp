@@ -1,4 +1,4 @@
-#include "test_qt.h"
+#include "cam_qt.h"
 
 #include <QApplication>
 #include <QStyleFactory>
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     a.setStyle(QStyleFactory::create("Fusion"));
     
     // 创建并显示主窗口
-    test_qt w;
+    cam_qt w;
     w.show();
     
     return a.exec();
