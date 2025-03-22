@@ -11,11 +11,13 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QVariant>
+#include <QAudioDevice>
 
 // 引入分离出的头文件
 #include "CameraControlDialog.h"
 #include "CameraDeviceInfo.h"
 #include "CameraUtils.h"
+#include "AudioPanel.h"
 
 // 不需要前向声明，因为已经包含了头文件
 // class Ui_cam_qt;
@@ -57,4 +59,11 @@ private:
     
     // 摄像头控制对话框
     CameraControlDialog* cameraControlDialog;
+    
+    // 音频相关
+    AudioPanel* audioPanel;
+    QAudioDevice currentAudioDevice;
+    void checkForAudioDevice(const QString &cameraName);
+    void setupAudioPanel();
+    bool hasAudioDevice(const QString &cameraName);
 }; 
