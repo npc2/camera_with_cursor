@@ -1,5 +1,7 @@
 #include "cam_qt.h"
 #include "dbgout.h"
+#include "AudioPanel.h"
+#include "CameraControlDialog.h"
 #include <QMessageBox>
 #include <QDebug>
 #include <QDateTime>
@@ -32,6 +34,11 @@
 #include <QStyle>
 #include <QAudioDevice>
 #include <QMediaDevices>
+#include <QStandardPaths>
+#include <QDir>
+#include <QTime>
+#include <QCoreApplication>
+#include <QFileDialog>
 
 // Windows特定头文件，用于获取USB设备信息
 #include <Windows.h>
@@ -46,7 +53,7 @@
 cam_qt::cam_qt(QWidget* parent)
     : QMainWindow(parent), ui(new Ui_cam_qt), camera(nullptr), 
       frameCount(0), currentFPS(0), lastFrameTime(0), cameraControlDialog(nullptr),
-      audioPanel(nullptr)
+      audioPanel(nullptr), mediaRecorder(nullptr), isRecording(false), recordingDuration(0)
 {
     ui->setupUi(this);
     
@@ -56,6 +63,7 @@ cam_qt::cam_qt(QWidget* parent)
                   "QGroupBox::title { subcontrol-origin: margin; left: 10px; font-weight: bold; color: #000000; }"
                   "QPushButton { background-color: #F0F0F0; border: 1px solid #C0C0C0; padding: 5px; font-weight: bold; color: #000000; }"
                   "QPushButton:hover { background-color: #E0E0E0; }"
+                  "QPushButton:disabled { background-color: #D0D0D0; color: #808080; }"
                   "QComboBox { background-color: white; border: 1px solid #C0C0C0; padding: 3px; color: #000000; }"
                   "QComboBox:drop-down { border: none; }"
                   "QComboBox:down-arrow { image: url(down_arrow.png); width: 12px; height: 12px; }"
@@ -79,6 +87,21 @@ cam_qt::cam_qt(QWidget* parent)
     
     // 初始化媒体捕获会话
     captureSession.setVideoSink(videoSink);
+    
+    // 初始化录制相关对象
+    mediaRecorder = new QMediaRecorder(this);
+    captureSession.setRecorder(mediaRecorder);
+    
+    // 连接录制相关信号
+    connect(mediaRecorder, &QMediaRecorder::recorderStateChanged, 
+            this, &cam_qt::handleRecordingStateChanged);
+    connect(mediaRecorder, &QMediaRecorder::durationChanged,
+            this, &cam_qt::handleRecordingDurationChanged);
+    connect(mediaRecorder, &QMediaRecorder::errorOccurred,
+            this, &cam_qt::handleRecordingError);
+    
+    // 初始化录制计时器
+    recordingTimer = new QTimer(this);
     
     // 初始化FPS计时器
     fpsTimer.start();
@@ -106,6 +129,9 @@ cam_qt::cam_qt(QWidget* parent)
     // 更新摄像头列表
     updateCameraList();
     
+    // 初始化录制按钮状态
+    updateRecordButton();
+    
     logToConsole("应用程序初始化完成");
 }
 
@@ -113,6 +139,17 @@ cam_qt::cam_qt(QWidget* parent)
 cam_qt::~cam_qt()
 {
     stopCamera();
+    stopRecording();
+    
+    if (recordingTimer) {
+        recordingTimer->stop();
+        delete recordingTimer;
+    }
+    
+    if (mediaRecorder) {
+        delete mediaRecorder;
+    }
+    
     delete cameraControlDialog;
     delete ui;
 }
@@ -442,6 +479,11 @@ void cam_qt::on_comboCamera_currentIndexChanged(int index)
 // 停止摄像头
 void cam_qt::stopCamera()
 {
+    // 如果正在录制，先停止录制
+    if (isRecording) {
+        stopRecording();
+    }
+    
     // 先停止音频捕获
     if (audioPanel) {
         audioPanel->stopAudio();
@@ -468,6 +510,9 @@ void cam_qt::stopCamera()
     }
     
     ui->btnOpenCamera->setText("打开摄像头");
+    
+    // 更新录制按钮状态
+    updateRecordButton();
     
     // 重置预览图像
     QSize labelSize = ui->labelPreview->size();
@@ -569,6 +614,9 @@ void cam_qt::on_btnOpenCamera_clicked()
         camera->start();
         logToConsole("摄像头启动完成");
         ui->btnOpenCamera->setText("关闭摄像头");
+        
+        // 更新录制按钮状态
+        updateRecordButton();
         
         // 如果有关联的音频设备，也启动音频捕获
         if (audioPanel && audioPanel->isVisible() && audioPanel->hasAudioSupport()) {
@@ -730,4 +778,162 @@ QString cam_qt::formatToString(const QCameraFormat &format)
             .arg(format.resolution().height())
             .arg(format.maxFrameRate(), 0, 'f', 1)
             .arg(pixelFormat);
+}
+
+// 获取默认保存路径
+QString cam_qt::getDefaultSavePath()
+{
+    // 使用程序所在路径
+    QString appPath = QCoreApplication::applicationDirPath();
+    
+    // 创建当前时间戳作为文件名
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss");
+    QString filename = QString("video_%1.mp4").arg(timestamp);
+    
+    return QDir(appPath).filePath(filename);
+}
+
+// 开始录制视频
+void cam_qt::startRecording()
+{
+    if (!camera || !camera->isActive() || !mediaRecorder) {
+        logToConsole("错误：无法开始录制，摄像头未激活或录制器未初始化");
+        return;
+    }
+    
+    if (mediaRecorder->recorderState() == QMediaRecorder::RecordingState) {
+        logToConsole("录制已经在进行中");
+        return;
+    }
+    
+    // 设置录制的格式为MP4
+    QMediaFormat mediaFormat;
+    mediaFormat.setFileFormat(QMediaFormat::MPEG4);
+    mediaFormat.setVideoCodec(QMediaFormat::VideoCodec::H264);
+    
+    // 如果有音频设备，添加音频编码
+    if (audioPanel && audioPanel->isVisible() && audioPanel->hasAudioSupport()) {
+        mediaFormat.setAudioCodec(QMediaFormat::AudioCodec::AAC);
+        logToConsole("录制将包含音频");
+    } else {
+        logToConsole("录制不包含音频，未检测到音频设备");
+    }
+    
+    mediaRecorder->setMediaFormat(mediaFormat);
+    
+    // 弹出保存文件对话框
+    QString defaultPath = getDefaultSavePath();
+    QString filePath = QFileDialog::getSaveFileName(this, tr("保存录制文件"),
+                                                   defaultPath,
+                                                   tr("MP4文件 (*.mp4)"));
+    
+    if (filePath.isEmpty()) {
+        logToConsole("用户取消了录制");
+        return;
+    }
+    
+    mediaRecorder->setOutputLocation(QUrl::fromLocalFile(filePath));
+    
+    // 重置录制时长
+    recordingDuration = 0;
+    
+    // 开始录制
+    mediaRecorder->record();
+    
+    logToConsole("开始录制视频到: " + filePath);
+    isRecording = true;
+    updateRecordButton();
+}
+
+// 停止录制视频
+void cam_qt::stopRecording()
+{
+    if (mediaRecorder && mediaRecorder->recorderState() == QMediaRecorder::RecordingState) {
+        mediaRecorder->stop();
+        logToConsole("停止录制视频");
+    }
+    
+    isRecording = false;
+    updateRecordButton();
+}
+
+// 更新录制按钮状态
+void cam_qt::updateRecordButton()
+{
+    // 只有在摄像头活动时才启用录制按钮
+    bool cameraActive = camera && camera->isActive();
+    ui->btnRecordVideo->setEnabled(cameraActive);
+    
+    // 根据录制状态更新按钮文本
+    if (isRecording) {
+        ui->btnRecordVideo->setText("停止录制");
+        ui->btnRecordVideo->setStyleSheet("background-color: #FF6060; "
+                                          "border: 1px solid #C0C0C0; "
+                                          "padding: 5px; "
+                                          "font-weight: bold; "
+                                          "color: white;");
+    } else {
+        ui->btnRecordVideo->setText("开始录制");
+        ui->btnRecordVideo->setStyleSheet("background-color: #F0F0F0; "
+                                          "border: 1px solid #C0C0C0; "
+                                          "padding: 5px; "
+                                          "font-weight: bold; "
+                                          "color: #000000;");
+    }
+}
+
+// 录制按钮点击处理
+void cam_qt::on_btnRecordVideo_clicked()
+{
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+}
+
+// 处理录制状态变化
+void cam_qt::handleRecordingStateChanged(QMediaRecorder::RecorderState state)
+{
+    switch (state) {
+        case QMediaRecorder::RecordingState:
+            logToConsole("录制状态：录制中");
+            isRecording = true;
+            updateRecordButton();
+            break;
+        
+        case QMediaRecorder::PausedState:
+            logToConsole("录制状态：暂停");
+            break;
+        
+        case QMediaRecorder::StoppedState:
+            logToConsole("录制状态：停止");
+            isRecording = false;
+            updateRecordButton();
+            break;
+    }
+}
+
+// 处理录制时长变化
+void cam_qt::handleRecordingDurationChanged(qint64 duration)
+{
+    recordingDuration = duration;
+    
+    // 将时长转换为可读时间格式 HH:MM:SS
+    QTime time = QTime(0, 0).addMSecs(duration);
+    QString timeStr = time.toString("hh:mm:ss");
+    
+    // 可以在这里更新录制时长显示，如果需要的话
+    logToConsole(QString("录制时长: %1").arg(timeStr));
+}
+
+// 处理录制错误
+void cam_qt::handleRecordingError(QMediaRecorder::Error error, const QString &errorString)
+{
+    logToConsole(QString("录制错误: %1").arg(errorString));
+    QMessageBox::critical(this, tr("录制错误"),
+                         tr("录制过程中出现错误：%1").arg(errorString));
+    
+    // 停止录制
+    stopRecording();
 }

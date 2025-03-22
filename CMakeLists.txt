@@ -26,6 +26,10 @@ set(PROJECT_SOURCES
     src/CameraUtils.h
     src/dbgout.cpp
     src/dbgout.h
+    src/AudioManager.cpp
+    src/AudioManager.h
+    src/AudioPanel.cpp
+    src/AudioPanel.h
 )
 
 # Create executable

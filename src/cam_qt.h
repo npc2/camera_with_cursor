@@ -12,12 +12,16 @@
 #include <QTimer>
 #include <QVariant>
 #include <QAudioDevice>
+#include <QMediaRecorder>
+#include <QMediaFormat>
+#include <QFileDialog>
 
-// 引入分离出的头文件
-#include "CameraControlDialog.h"
+// 前向声明
+class CameraControlDialog;
+class AudioPanel;
+
 #include "CameraDeviceInfo.h"
 #include "CameraUtils.h"
-#include "AudioPanel.h"
 
 // 不需要前向声明，因为已经包含了头文件
 // class Ui_cam_qt;
@@ -39,7 +43,11 @@ private slots:
     void on_comboFormat_currentIndexChanged(int index);
     void updateFPSDisplay();
     void on_btnCameraControl_clicked();  // 打开摄像头控制面板
-
+    void on_btnRecordVideo_clicked();    // 开始/停止录制视频
+    void handleRecordingStateChanged(QMediaRecorder::RecorderState state);
+    void handleRecordingDurationChanged(qint64 duration);
+    void handleRecordingError(QMediaRecorder::Error error, const QString &errorString);
+    
 private:
     Ui_cam_qt* ui;
     QCamera* camera;
@@ -66,4 +74,15 @@ private:
     void checkForAudioDevice(const QString &cameraName);
     void setupAudioPanel();
     bool hasAudioDevice(const QString &cameraName);
+    
+    // 录制相关
+    QMediaRecorder* mediaRecorder;
+    bool isRecording;
+    void startRecording();
+    void stopRecording();
+    void updateRecordButton();
+    QString getDefaultSavePath();
+    QTimer* recordingTimer;
+    qint64 recordingDuration;
 }; 
+
