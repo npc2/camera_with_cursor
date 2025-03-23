@@ -128,20 +128,6 @@ border: 1px solid #C0C0C0;</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QLabel" name="labelFPS">
-          <property name="styleSheet">
-           <string notr="true">color: #000000;
-font-weight: bold;</string>
-          </property>
-          <property name="text">
-           <string>实时帧率: 0 FPS</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>

@@ -446,18 +446,12 @@ void cam_qt::updateFPSDisplay()
                 currentFPS = (currentFPS * 0.7) + (instantFPS * 0.3);
             }
             
-            // 显示FPS，同时显示设置的目标帧率
-            int targetFPS = ui->spinFrameRate->value();
-            ui->labelFPS->setText(QString("实时帧率: %1 FPS (目标: %2 FPS)")
-                                .arg(qRound(currentFPS))
-                                .arg(targetFPS));
-            
             // 重置计数器
             frameCount = 0;
             fpsTimer.restart();
         }
     } else {
-        ui->labelFPS->setText("实时帧率: 0 FPS");
+        currentFPS = 0;
     }
 }
 
@@ -725,6 +719,11 @@ void cam_qt::handleVideoFrame(const QVideoFrame &frame)
             int x = (labelSize.width() - scaledImage.width()) / 2;
             int y = (labelSize.height() - scaledImage.height()) / 2;
             painter.drawImage(x, y, scaledImage);
+
+            // 绘制实时帧率文本
+            painter.setPen(Qt::gray); // 设置文本颜色
+            painter.setFont(QFont("Arial", 8)); // 设置字体
+            painter.drawText(10, labelSize.height() - 10, QString("实时帧率: %1 FPS").arg(currentFPS, 0, 'f', 1)); // 在左下角绘制文本
             
             // 显示图像
             ui->labelPreview->setPixmap(QPixmap::fromImage(background));

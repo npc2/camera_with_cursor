@@ -16,7 +16,7 @@ SpectrumWidget::SpectrumWidget(QWidget *parent)
     setMinimumSize(200, 100);
     
     // 初始化频谱数据
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 16; ++i) {
         m_spectrumData.append(0.0f);
     }
     
@@ -78,6 +78,15 @@ void SpectrumWidget::paintEvent(QPaintEvent *event)
         int y = height() * i / gridLines;
         painter.drawLine(0, y, width(), y);
     }
+
+    // 绘制音频频谱文本
+    QString text = "音频频谱";
+    QRect textRect = painter.boundingRect(QRect(0, 0, width(), 30), Qt::AlignCenter, text);
+    painter.setPen(Qt::gray); // 设置文本颜色
+    painter.setFont(QFont("Arial", 10)); // 设置字体
+    int x = (width() - textRect.width()) / 2;
+    int y = textRect.height();
+    painter.drawText(x, y, text); // 在指定位置绘制文本
 }
 
 // VolumeSlider 实现
@@ -86,7 +95,7 @@ VolumeSlider::VolumeSlider(QWidget *parent)
 {
     // 创建主布局
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(5, 10, 5, 10);
+    mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->setSpacing(8);
     
     // 创建标题标签
@@ -280,16 +289,16 @@ void AudioPanel::setupUI()
     QVBoxLayout *leftLayout = new QVBoxLayout();
     
     // 添加频谱标题
-    QLabel *spectrumTitle = new QLabel("音频频谱", this);
+    /*QLabel *spectrumTitle = new QLabel("音频频谱", this);
     spectrumTitle->setAlignment(Qt::AlignCenter);
-    spectrumTitle->setStyleSheet("font-weight: bold; color: #333333;");
+    spectrumTitle->setStyleSheet("font-weight: bold; color: #333333;");*/
     
     // 创建频谱显示控件
     m_spectrumWidget = new SpectrumWidget(this);
     m_spectrumWidget->setMinimumSize(300, 200);
     m_spectrumWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     
-    leftLayout->addWidget(spectrumTitle);
+    //leftLayout->addWidget(spectrumTitle);
     leftLayout->addWidget(m_spectrumWidget);
     
     // 状态标签（初始时隐藏）
@@ -307,7 +316,7 @@ void AudioPanel::setupUI()
     rightLayout->addWidget(m_volumeSlider, 0, Qt::AlignHCenter);
     
     // 设置左右两侧大小比例
-    mainLayout->addLayout(leftLayout, 3);
+    mainLayout->addLayout(leftLayout, 7);
     mainLayout->addLayout(rightLayout, 1);
     
     // 设置整体样式
